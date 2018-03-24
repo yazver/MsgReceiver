@@ -8,10 +8,12 @@ import (
 	"net"
 )
 
+// Server realise message receiver from clients
 type Server struct {
 	listener net.Listener
 }
 
+// Receive messages from clients
 func (s *Server) Receive() chan *Message {
 	c := make(chan *Message, 1)
 
@@ -47,10 +49,12 @@ func (s *Server) Receive() chan *Message {
 	return c
 }
 
+// Close connection
 func (s *Server) Close() error {
 	return s.listener.Close()
 }
 
+// NewServer create message's server
 func NewServer(address string) (*Server, error) {
 	ln, err := net.Listen("tcp", address)
 	if err != nil {

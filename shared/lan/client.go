@@ -9,11 +9,13 @@ import (
 	"sync"
 )
 
+// Client create connection to server and allow send messeges to them
 type Client struct {
 	lock       sync.Mutex
 	connection net.Conn
 }
 
+// Send message to server
 func (c *Client) Send(s *Message) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -39,10 +41,12 @@ func (c *Client) Send(s *Message) error {
 	return nil
 }
 
+// Close connection
 func (c *Client) Close() error {
 	return c.connection.Close()
 }
 
+// NewClient create new client.
 func NewClient(address string) (*Client, error) {
 	conn, err := net.Dial("tcp", address)
 	if err != nil {

@@ -1,33 +1,38 @@
 package lan
 
 import (
-	"bytes"
+	"bufio"
 	"encoding/gob"
-	"fmt"
-	"log"
+	"errors"
 	"net"
+	"strings"
 )
 
 type Client struct {
 	connection net.Conn
 }
 
-func (c *Client) Send(s *Message) {
+func (c *Client) Send(s *Message) error {
 
-	var b bytes.Buffer
-	enc := gob.NewEncoder(&b)
+	rw := bufio.NewReadWriter(bufio.NewReader(c.connection), bufio.NewWriter(c.connection))
+	enc := gob.NewEncoder(rw)
 	err := enc.Encode(s)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
-	fmt.Printf("Buffer %d %v\n", b.Len(), b.Bytes())
-	_, err = c.connection.Write(b.Bytes())
-	// enc := gob.NewEncoder(c.connection)
-	// err := enc.Encode(s)
+	err = rw.Flush()
 	if err != nil {
-		log.Println(err)
+		return err
 	}
-	return // err
+	cmd, err := rw.ReadString('\n')
+	if err != nil {
+		return err
+	}
+	cmd = strings.TrimSpace(cmd)
+	if cmd != "OK" {
+		return errors.New("Status: " + cmd)
+	}
+	return nil
 }
 
 func (c *Client) Close() error {

@@ -1,6 +1,7 @@
 package lan
 
 import (
+	"bufio"
 	"encoding/gob"
 	"io"
 	"log"
@@ -23,11 +24,11 @@ func (s *Server) Receive() chan *Message {
 				return
 			}
 			go func(conn net.Conn) {
+				rw := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 				defer conn.Close()
-
 				for {
 					m := &Message{}
-					dec := gob.NewDecoder(conn)
+					dec := gob.NewDecoder(rw)
 					err = dec.Decode(m)
 					if err == io.EOF {
 						return
@@ -35,6 +36,8 @@ func (s *Server) Receive() chan *Message {
 					if err != nil {
 						log.Fatal("decode error:", err)
 					}
+					rw.WriteString("OK\n")
+					rw.Flush()
 					c <- m
 				}
 			}(conn)

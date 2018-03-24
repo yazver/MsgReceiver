@@ -1,35 +1,29 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/yazver/msgreceiver/shared/lan"
 )
 
-func main() {
+func sendMessages(id int) {
 	client, err := lan.NewClient("127.0.0.1:9999")
 	if err != nil {
 		log.Fatal(err)
 	}
-	client.Send(&lan.Message{"Hi 1"})
-	client.Send(&lan.Message{"Hi 2"})
-	client.Send(&lan.Message{"Hi 3"})
-	client.Send(&lan.Message{"Hi 4"})
-	client.Send(&lan.Message{"Hi 5"})
-	client.Send(&lan.Message{"Hi 6"})
-	client.Send(&lan.Message{"Hi 7"})
-	//client.Close()
-
-	client, err = lan.NewClient("127.0.0.1:9999")
-	if err != nil {
-		log.Fatal(err)
+	defer client.Close()
+	for i := 0; i < 6; i++ {
+		m := &lan.Message{fmt.Sprintf("Client: %d; Message: %d", id, i)}
+		if err := client.Send(m); err != nil {
+			log.Println("Error: %s", err)
+		}
+		log.Println(m.Name)
 	}
-	client.Send(&lan.Message{"Hi2 1"})
-	client.Send(&lan.Message{"Hi2 2"})
-	client.Send(&lan.Message{"Hi2 3"})
-	client.Send(&lan.Message{"Hi2 4"})
-	client.Send(&lan.Message{"Hi2 5"})
-	client.Send(&lan.Message{"Hi2 6"})
-	client.Send(&lan.Message{"Hi2 7"})
-	client.Close()
+}
+
+func main() {
+	go sendMessages(3)
+	sendMessages(1)
+	sendMessages(2)
 }

@@ -6,13 +6,17 @@ import (
 	"errors"
 	"net"
 	"strings"
+	"sync"
 )
 
 type Client struct {
+	lock       sync.Mutex
 	connection net.Conn
 }
 
 func (c *Client) Send(s *Message) error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 
 	rw := bufio.NewReadWriter(bufio.NewReader(c.connection), bufio.NewWriter(c.connection))
 	enc := gob.NewEncoder(rw)

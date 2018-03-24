@@ -13,4 +13,5 @@ debug
 
 .vscode/
 
-
+~*
+*.tmp

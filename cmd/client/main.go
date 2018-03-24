@@ -16,7 +16,7 @@ func sendMessages(id int) {
 	for i := 0; i < 6; i++ {
 		m := &lan.Message{fmt.Sprintf("Client: %d; Message: %d", id, i)}
 		if err := client.Send(m); err != nil {
-			log.Println("Error: %s", err)
+			log.Printf("Error: %s\n", err)
 		}
 		log.Println(m.Name)
 	}
